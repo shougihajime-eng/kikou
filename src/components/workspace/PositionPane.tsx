@@ -87,7 +87,7 @@ export function PositionPane({
   })();
 
   return (
-    <div className="mx-auto max-w-xl space-y-5">
+    <div className="animate-rise mx-auto max-w-xl space-y-5">
       {/* 図のタイトル */}
       <div className="flex items-center justify-between gap-2">
         {editingTitle && isAuthor ? (

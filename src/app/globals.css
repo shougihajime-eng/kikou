@@ -98,9 +98,9 @@ body {
   background-clip: padding-box;
 }
 
-/* ============ 将棋の駒（五角形・本物志向） ============ */
+/* ============ 将棋の駒（五角形・黄楊の木地・彫り文字） ============ */
 .koma-wrap {
-  filter: drop-shadow(0 1.5px 1px rgba(60, 40, 10, 0.32));
+  filter: drop-shadow(0 1.5px 1.2px rgba(60, 40, 10, 0.3));
   line-height: 1;
 }
 .koma-piece {
@@ -110,29 +110,53 @@ body {
   aspect-ratio: 43 / 47;
   /* 駒の五角形シルエット（上が尖る） */
   clip-path: polygon(50% 0%, 73% 15%, 88% 100%, 12% 100%, 27% 15%);
-  background: linear-gradient(157deg, var(--koma) 0%, var(--koma-2) 100%);
+  /* 上の艶 → 下の陰 → 縦の杢目 → 木地 を重ねて立体感を出す */
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.55) 0%, transparent 20%),
+    linear-gradient(0deg, rgba(120, 80, 30, 0.2) 0%, transparent 24%),
+    repeating-linear-gradient(
+      91deg,
+      rgba(150, 110, 50, 0.06) 0 1.5px,
+      transparent 1.5px 5px
+    ),
+    linear-gradient(158deg, #f8e7bf 0%, #ecd29c 56%, #e2c086 100%);
 }
 .koma-glyph {
   font-family: var(--font-noto-serif-jp), "Yu Mincho", "游明朝", serif;
   font-weight: 600;
-  color: var(--sumi);
+  color: #2a2017;
   line-height: 1;
   transform: translateY(4%);
+  /* 彫り込んだような陰影 */
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
 }
 .koma-glyph.promoted {
   color: var(--shu);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 .koma-flip {
   transform: rotate(180deg);
 }
 
-/* ============ 盤 ============ */
+/* ============ 盤（榧の杢目） ============ */
 .ban-frame {
-  background: linear-gradient(160deg, var(--kaya) 0%, var(--kaya-2) 100%);
+  background:
+    repeating-linear-gradient(
+      89deg,
+      rgba(150, 100, 40, 0.05) 0 2px,
+      transparent 2px 7px
+    ),
+    repeating-linear-gradient(
+      91deg,
+      rgba(120, 80, 30, 0.035) 0 1px,
+      transparent 1px 13px
+    ),
+    linear-gradient(160deg, var(--kaya) 0%, var(--kaya-2) 100%);
   border-radius: 6px;
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.4) inset,
-    0 10px 30px -12px rgba(60, 40, 10, 0.45),
+    0 1px 0 rgba(255, 255, 255, 0.45) inset,
+    0 0 0 1px rgba(120, 80, 30, 0.25) inset,
+    0 14px 34px -14px rgba(60, 40, 10, 0.5),
     0 2px 6px -2px rgba(60, 40, 10, 0.3);
 }
 .ban-grid {
