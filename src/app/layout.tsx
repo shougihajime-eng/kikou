@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Noto_Sans_JP, Noto_Serif_JP } from "next/font/google";
 import "./globals.css";
+import { ServiceWorkerRegister } from "@/components/sw-register";
 
 const notoSans = Noto_Sans_JP({
   variable: "--font-noto-sans-jp",
@@ -26,6 +27,13 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
     title: "棋稿",
   },
+  icons: {
+    icon: [
+      { url: "/icons/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: "/icons/apple-touch-icon.png",
+  },
 };
 
 export const viewport: Viewport = {
@@ -45,7 +53,10 @@ export default function RootLayout({
       lang="ja"
       className={`${notoSans.variable} ${notoSerif.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <ServiceWorkerRegister />
+      </body>
     </html>
   );
 }
