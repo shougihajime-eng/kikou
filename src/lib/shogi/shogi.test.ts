@@ -42,6 +42,12 @@ describe("SFEN parse/serialize", () => {
     expect(() => parseSfen("9/9/9 b - 1")).toThrow();
   });
 
+  it("段が9マスに満たない/超える SFEN は例外", () => {
+    expect(() => parseSfen("5/9/9/9/9/9/9/9/9 b - 1")).toThrow();
+    expect(() => parseSfen("99/9/9/9/9/9/9/9/9 b - 1")).toThrow();
+    expect(() => parseSfen("ppppppppppp/9/9/9/9/9/9/9/9 b - 1")).toThrow();
+  });
+
   it("筋とcolの変換が対応する", () => {
     expect(colToFile(0)).toBe(9);
     expect(colToFile(8)).toBe(1);

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Board } from "./Board";
+import { Koma } from "./Koma";
 import { clsx } from "@/lib/clsx";
 import {
   parseSfen,
@@ -12,7 +13,6 @@ import {
   type Color,
   type Role,
 } from "@/lib/shogi/sfen";
-import { pieceKanji } from "@/lib/shogi/notation";
 import { validateBoard, type ValidationIssue } from "@/lib/shogi/validate";
 
 const PALETTE: Role[] = ["K", "R", "B", "G", "S", "N", "L", "P"];
@@ -211,14 +211,13 @@ export function BoardEditor({
                     })
                   }
                   className={clsx(
-                    "koma flex h-8 w-8 items-center justify-center rounded border text-base",
+                    "flex h-9 w-8 items-center justify-center rounded border p-0.5 text-lg transition-colors",
                     active
-                      ? "border-ai bg-ai/10 text-ai"
-                      : "border-line bg-washi text-sumi hover:bg-washi-2",
-                    color === "w" && "rotate-180"
+                      ? "border-ai bg-ai/10 ring-1 ring-ai/30"
+                      : "border-line bg-washi hover:bg-washi-2"
                   )}
                 >
-                  {pieceKanji(role, !!promoted, color)}
+                  <Koma role={role} promoted={!!promoted} color={color} flip={color === "w"} />
                 </button>
               );
             })}
@@ -254,8 +253,8 @@ export function BoardEditor({
                 key={role}
                 className="inline-flex items-center gap-1 rounded border border-line bg-washi px-1.5 py-0.5"
               >
-                <span className="koma text-sm text-sumi">
-                  {pieceKanji(role, false, color)}
+                <span className="flex h-6 w-5 items-center justify-center text-base">
+                  <Koma role={role} promoted={false} color={color} />
                 </span>
                 <button
                   type="button"

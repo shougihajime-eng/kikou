@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { safeNext } from "@/lib/safe-next";
 
 export interface AuthResult {
   error?: string;
@@ -15,7 +16,7 @@ export async function signIn(
 ): Promise<AuthResult> {
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
-  const next = String(formData.get("next") ?? "/projects");
+  const next = safeNext(formData.get("next") as string | null);
 
   if (!email || !password) return { error: "メールと合言葉を入れてください。" };
 
@@ -27,7 +28,7 @@ export async function signIn(
   if (error) return { error: "メールか合言葉が違います。" };
 
   await ensureProfile(data.user.id, data.user.user_metadata?.display_name);
-  redirect(next || "/projects");
+  redirect(next);
 }
 
 /** 新規登録（表示名・メール・合言葉）。確認メール不要で即ログイン。 */
@@ -38,7 +39,7 @@ export async function signUp(
   const displayName = String(formData.get("display_name") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
-  const next = String(formData.get("next") ?? "/projects");
+  const next = safeNext(formData.get("next") as string | null);
 
   if (!displayName) return { error: "お名前を入れてください。" };
   if (!email) return { error: "メールを入れてください。" };
@@ -69,7 +70,7 @@ export async function signUp(
   });
   if (signErr) return { error: "登録はできましたが、ログインに失敗しました。" };
 
-  redirect(next || "/projects");
+  redirect(next);
 }
 
 export async function signOut() {

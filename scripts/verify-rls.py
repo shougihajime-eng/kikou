@@ -112,6 +112,23 @@ st, d = req("POST", f"{BASE}/rest/v1/comments", user_h(tokens["outsider"], True)
 out_blocked = (st in (401,403)) or (st in (200,201) and (d==[] or d is None))
 check("部外者はコメントできない", out_blocked, f"{st} {d}")
 
+print("\n[改ざん防止（強化）]")
+st, cs = req("GET", f"{BASE}/rest/v1/comments?select=id,body,resolved&position_id=eq.{posid}", sr_db_h())
+edc = next((c for c in cs if c["body"] == "編集者コメント"), None)
+if edc:
+    # 著者が編集者コメントの本文を書き換え → 不変であること
+    req("PATCH", f"{BASE}/rest/v1/comments?id=eq.{edc['id']}", user_h(tokens["author"], True), {"body":"著者が改ざん"})
+    st, after = req("GET", f"{BASE}/rest/v1/comments?select=body&id=eq.{edc['id']}", sr_db_h())
+    check("著者は編集者コメントの本文を変えられない", after[0]["body"]=="編集者コメント", f"{after}")
+    # 著者が編集者コメントを解決 → 成功
+    req("PATCH", f"{BASE}/rest/v1/comments?id=eq.{edc['id']}", user_h(tokens["author"], True), {"resolved":True})
+    st, after = req("GET", f"{BASE}/rest/v1/comments?select=resolved&id=eq.{edc['id']}", sr_db_h())
+    check("著者は編集者コメントを『解決』にできる", after[0]["resolved"] is True, f"{after}")
+# owner_id 改ざん → 不変であること
+req("PATCH", f"{BASE}/rest/v1/projects?id=eq.{pid}", user_h(tokens["author"], True), {"owner_id":ids["editor"]})
+st, after = req("GET", f"{BASE}/rest/v1/projects?select=owner_id&id=eq.{pid}", sr_db_h())
+check("プロジェクトの owner_id は変更できない", after[0]["owner_id"]==ids["author"], f"{after}")
+
 # --- 後片付け ---
 req("DELETE", f"{BASE}/rest/v1/projects?id=eq.{pid}", sr_db_h(True))
 for role in ids:

@@ -8,7 +8,7 @@ import {
   colToFile,
   rankToRank,
 } from "@/lib/shogi/sfen";
-import { pieceKanji } from "@/lib/shogi/notation";
+import { Koma } from "./Koma";
 
 const HAND_ORDER: Role[] = ["R", "B", "G", "S", "N", "L", "P"];
 
@@ -16,40 +16,10 @@ export interface BoardProps {
   state: BoardState;
   /** 盤の向き。b=先手視点（既定）, w=後手視点。 */
   orientation?: Color;
-  /** マスをクリックしたとき（編集モード）。rank/col は配列インデックス。 */
   onSquareClick?: (rank: number, col: number) => void;
-  /** 駒台の駒をクリック（編集モード）。 */
   onHandClick?: (color: Color, role: Role) => void;
-  /** 強調表示するマス（配列インデックス "r,c"）。 */
   highlight?: Set<string>;
   className?: string;
-}
-
-function Koma({
-  role,
-  promoted,
-  color,
-  orientation,
-}: {
-  role: Role;
-  promoted: boolean;
-  color: Color;
-  orientation: Color;
-}) {
-  // 自分から見て相手の駒は上下逆さに描く（将棋盤の慣習）。
-  const flipped = color !== orientation;
-  const isFull = promoted; // 成駒は2文字になり得るので少し小さく
-  return (
-    <span
-      className={clsx(
-        "koma select-none leading-none text-sumi",
-        flipped && "rotate-180",
-        isFull ? "text-[62%]" : "text-[80%]"
-      )}
-    >
-      {pieceKanji(role, promoted, color)}
-    </span>
-  );
 }
 
 export function Board({
@@ -64,123 +34,148 @@ export function Board({
   const cols = [...Array(9).keys()];
   const orderRows = orientation === "b" ? rows : [...rows].reverse();
   const orderCols = orientation === "b" ? cols : [...cols].reverse();
-
   const interactive = !!onSquareClick;
 
-  // 駒台: 先手視点なら 後手台=上 / 先手台=下
   const topColor: Color = orientation === "b" ? "w" : "b";
   const bottomColor: Color = orientation === "b" ? "b" : "w";
 
   return (
-    <div className={clsx("mx-auto w-full max-w-[420px]", className)}>
-      <HandRow
+    <div className={clsx("mx-auto w-full max-w-[400px]", className)}>
+      <HandStand
         color={topColor}
         hands={state.hands[topColor]}
         onHandClick={onHandClick}
-        flip
+        align="end"
       />
 
-      <div className="my-1.5 flex">
-        {/* 盤本体 */}
-        <div className="grid flex-1 grid-cols-9 overflow-hidden rounded-[3px] border-2 border-kaya-line bg-kaya">
-          {orderRows.map((r) =>
-            orderCols.map((c) => {
-              const cell = state.board[r][c];
-              const key = `${r},${c}`;
-              const hl = highlight?.has(key);
-              return (
-                <button
-                  key={key}
-                  type="button"
-                  disabled={!interactive}
-                  onClick={() => onSquareClick?.(r, c)}
-                  className={clsx(
-                    "relative flex aspect-square items-center justify-center border-[0.5px] border-kaya-line/60 text-[min(7vw,26px)]",
-                    interactive && "cursor-pointer hover:bg-amber-200/40",
-                    hl && "bg-ai/15"
-                  )}
-                >
-                  {cell && (
-                    <Koma
-                      role={cell.role}
-                      promoted={cell.promoted}
-                      color={cell.color}
-                      orientation={orientation}
-                    />
-                  )}
-                </button>
-              );
-            })
-          )}
+      <div className="my-2 flex items-stretch gap-1">
+        <div className="flex-1">
+          {/* 筋（算用数字・上） */}
+          <div className="mb-1 grid grid-cols-9 px-px text-center text-[10px] tracking-wide text-sumi-faint">
+            {orderCols.map((c) => (
+              <span key={c}>{colToFile(c)}</span>
+            ))}
+          </div>
+
+          <div className="ban-frame p-[3px]">
+            <div className="ban-grid relative grid grid-cols-9 overflow-hidden text-[min(8.2vw,30px)]">
+              {orderRows.map((r) =>
+                orderCols.map((c) => {
+                  const cell = state.board[r][c];
+                  const key = `${r},${c}`;
+                  const hl = highlight?.has(key);
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      disabled={!interactive}
+                      onClick={() => onSquareClick?.(r, c)}
+                      className={clsx(
+                        "ban-cell relative flex aspect-square items-center justify-center p-[6%] transition-colors",
+                        interactive && "cursor-pointer hover:bg-white/25",
+                        hl && "bg-ai/15"
+                      )}
+                    >
+                      {cell && (
+                        <Koma
+                          role={cell.role}
+                          promoted={cell.promoted}
+                          color={cell.color}
+                          flip={cell.color !== orientation}
+                        />
+                      )}
+                    </button>
+                  );
+                })
+              )}
+              {/* 星 */}
+              {[33.333, 66.667].flatMap((top) =>
+                [33.333, 66.667].map((left) => (
+                  <span
+                    key={`${top}-${left}`}
+                    className="ban-star"
+                    style={{ top: `${top}%`, left: `${left}%` }}
+                  />
+                ))
+              )}
+            </div>
+          </div>
         </div>
 
-        {/* 段の表示（漢数字） */}
-        <div className="ml-0.5 flex flex-col justify-around text-[10px] text-sumi-soft">
-          {orderRows.map((r) => (
-            <span key={r} className="text-center">
-              {rankToRank(r)}
-            </span>
-          ))}
+        {/* 段（漢数字・右） */}
+        <div className="flex flex-col pt-[18px] text-[10px] text-sumi-faint">
+          <div className="grid flex-1" style={{ gridTemplateRows: "repeat(9, 1fr)" }}>
+            {orderRows.map((r) => (
+              <span key={r} className="flex items-center justify-center">
+                {rankToRank(r)}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* 筋の表示（算用数字） */}
-      <div className="mb-1.5 grid grid-cols-9 pr-3 text-center text-[10px] text-sumi-soft">
-        {orderCols.map((c) => (
-          <span key={c}>{colToFile(c)}</span>
-        ))}
-      </div>
-
-      <HandRow
+      <HandStand
         color={bottomColor}
         hands={state.hands[bottomColor]}
         onHandClick={onHandClick}
+        align="start"
       />
     </div>
   );
 }
 
-function HandRow({
+function HandStand({
   color,
   hands,
   onHandClick,
-  flip,
+  align,
 }: {
   color: Color;
   hands: Partial<Record<Role, number>>;
   onHandClick?: (color: Color, role: Role) => void;
-  flip?: boolean;
+  align: "start" | "end";
 }) {
   const items = HAND_ORDER.filter((role) => (hands[role] ?? 0) > 0);
-  const label = color === "b" ? "☗先手" : "☖後手";
+  const label = color === "b" ? "☗ 先手" : "☖ 後手";
   return (
     <div
       className={clsx(
-        "flex min-h-7 flex-wrap items-center gap-1 rounded bg-washi-2/70 px-2 py-1 text-sm",
-        flip && "flex-row-reverse"
+        "flex min-h-9 items-center gap-1.5 rounded-md border border-line-soft bg-washi-2/60 px-2.5 py-1.5",
+        align === "end" && "flex-row-reverse"
       )}
     >
-      <span className="text-[10px] text-sumi-soft">{label}</span>
-      {items.length === 0 && (
-        <span className="text-[10px] text-sumi-soft/50">なし</span>
-      )}
-      {items.map((role) => (
-        <button
-          key={role}
-          type="button"
-          disabled={!onHandClick}
-          onClick={() => onHandClick?.(color, role)}
-          className={clsx(
-            "koma flex items-center text-sumi",
-            onHandClick && "cursor-pointer hover:text-ai"
-          )}
-        >
-          {pieceKanji(role, false, color)}
-          {(hands[role] ?? 0) > 1 && (
-            <span className="ml-0.5 text-[10px]">{hands[role]}</span>
-          )}
-        </button>
-      ))}
+      <span className="shrink-0 text-[11px] font-medium tracking-wide text-sumi-soft">
+        {label}
+      </span>
+      <div
+        className={clsx(
+          "flex flex-1 flex-wrap items-center gap-1 text-[min(5vw,19px)]",
+          align === "end" && "justify-end"
+        )}
+      >
+        {items.length === 0 && (
+          <span className="text-[11px] text-sumi-faint/70">なし</span>
+        )}
+        {items.map((role) => (
+          <button
+            key={role}
+            type="button"
+            disabled={!onHandClick}
+            onClick={() => onHandClick?.(color, role)}
+            className={clsx(
+              "relative flex h-[1.45em] w-[1.3em] items-center justify-center",
+              onHandClick && "cursor-pointer hover:opacity-80"
+            )}
+          >
+            <Koma role={role} promoted={false} color={color} flip={color === "w"} />
+            {(hands[role] ?? 0) > 1 && (
+              <span className="absolute -bottom-1 -right-1 rounded-full bg-sumi px-1 text-[9px] font-medium leading-tight text-washi">
+                {hands[role]}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

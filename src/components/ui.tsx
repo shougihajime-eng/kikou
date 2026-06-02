@@ -12,11 +12,11 @@ export function Button({
   return (
     <button
       className={clsx(
-        "inline-flex items-center justify-center gap-1.5 rounded px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
+        "inline-flex items-center justify-center gap-1.5 rounded-md px-4 py-2 text-sm font-medium transition-all active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed",
         variant === "primary" &&
-          "bg-ai text-washi hover:bg-ai-soft",
+          "bg-ai text-washi shadow-sm hover:bg-ai-soft hover:shadow",
         variant === "ghost" &&
-          "border border-line bg-transparent text-sumi hover:bg-washi-2",
+          "border border-line bg-washi/40 text-sumi hover:bg-washi-2",
         variant === "subtle" && "bg-washi-2 text-sumi hover:bg-line/40",
         variant === "danger" &&
           "border border-danger/40 text-danger hover:bg-danger/10",
@@ -44,10 +44,10 @@ export function LinkButton({
     <Link
       href={href}
       className={clsx(
-        "inline-flex items-center justify-center gap-1.5 rounded px-4 py-2 text-sm font-medium transition-colors",
-        variant === "primary" && "bg-ai text-washi hover:bg-ai-soft",
+        "inline-flex items-center justify-center gap-1.5 rounded-md px-5 py-2.5 text-sm font-medium transition-all active:translate-y-px",
+        variant === "primary" && "bg-ai text-washi shadow-sm hover:bg-ai-soft hover:shadow",
         variant === "ghost" &&
-          "border border-line bg-transparent text-sumi hover:bg-washi-2",
+          "border border-line bg-washi/40 text-sumi hover:bg-washi-2",
         className
       )}
     >

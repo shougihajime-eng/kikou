@@ -57,12 +57,11 @@ export function Attachments({
 
   async function remove(a: Attachment) {
     if (!confirm("この画像を削除しますか？")) return;
-    await supabase.from("attachments").delete().eq("id", a.id);
-    await fetch(
-      `/api/attachments?path=${encodeURIComponent(a.storage_path)}`,
-      { method: "DELETE" }
-    );
-    load();
+    const res = await fetch(`/api/attachments?id=${encodeURIComponent(a.id)}`, {
+      method: "DELETE",
+    });
+    if (res.ok) load();
+    else alert("画像の削除に失敗しました。");
   }
 
   if (items.length === 0 && !canEdit) return null;

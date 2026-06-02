@@ -46,6 +46,15 @@ export function Workspace({
 
   const supabase = db();
 
+  // 楽観更新の保存に失敗したら、画面を最新へ戻して不整合を防ぐ
+  async function persist(p: PromiseLike<{ error: unknown }>) {
+    const { error } = await p;
+    if (error) {
+      alert("保存に失敗しました。画面を最新の状態に戻します。");
+      if (typeof window !== "undefined") window.location.reload();
+    }
+  }
+
   // ---- 章の操作（著者のみ） ----
   async function addChapter() {
     const sort = chapters.length;
@@ -59,22 +68,26 @@ export function Workspace({
 
   async function renameChapter(id: string, title: string) {
     setChapters((cs) => cs.map((c) => (c.id === id ? { ...c, title } : c)));
-    await supabase.from("chapters").update({ title }).eq("id", id);
+    await persist(supabase.from("chapters").update({ title }).eq("id", id));
   }
 
   async function deleteChapter(id: string) {
     setChapters((cs) => cs.filter((c) => c.id !== id));
     setPositions((ps) => ps.filter((p) => p.chapter_id !== id));
-    await supabase.from("chapters").delete().eq("id", id);
+    await persist(supabase.from("chapters").delete().eq("id", id));
   }
 
   async function reorderChapters(ordered: Chapter[]) {
     setChapters(ordered);
-    await Promise.all(
+    const results = await Promise.all(
       ordered.map((c, i) =>
         supabase.from("chapters").update({ sort_order: i }).eq("id", c.id)
       )
     );
+    if (results.some((r) => r.error)) {
+      alert("並び替えの保存に失敗しました。画面を最新に戻します。");
+      if (typeof window !== "undefined") window.location.reload();
+    }
   }
 
   // ---- 局面の操作（著者のみ） ----
@@ -98,13 +111,13 @@ export function Workspace({
 
   async function renamePosition(id: string, title: string) {
     setPositions((ps) => ps.map((p) => (p.id === id ? { ...p, title } : p)));
-    await supabase.from("positions").update({ title }).eq("id", id);
+    await persist(supabase.from("positions").update({ title }).eq("id", id));
   }
 
   async function deletePosition(id: string) {
     setPositions((ps) => ps.filter((p) => p.id !== id));
     if (selectedId === id) setSelectedId(null);
-    await supabase.from("positions").delete().eq("id", id);
+    await persist(supabase.from("positions").delete().eq("id", id));
   }
 
   async function reorderPositions(chapterId: string, ordered: Position[]) {
@@ -112,11 +125,15 @@ export function Workspace({
       const others = ps.filter((p) => p.chapter_id !== chapterId);
       return [...others, ...ordered];
     });
-    await Promise.all(
+    const results = await Promise.all(
       ordered.map((p, i) =>
         supabase.from("positions").update({ sort_order: i }).eq("id", p.id)
       )
     );
+    if (results.some((r) => r.error)) {
+      alert("並び替えの保存に失敗しました。画面を最新に戻します。");
+      if (typeof window !== "undefined") window.location.reload();
+    }
   }
 
   // ローカル更新（盤・解説の保存はPositionPane内でdebounce）

@@ -84,6 +84,8 @@ export function parseSfen(sfen: string): BoardState {
       promoted = false;
       col += 1;
     }
+    if (col !== 9)
+      throw new Error(`SFEN の${rank + 1}段目が9マスになっていません`);
   });
 
   const hands = emptyHands();

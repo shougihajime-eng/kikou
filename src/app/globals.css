@@ -1,84 +1,212 @@
 @import "tailwindcss";
 
 /*
-  棋稿 / Kikō — 和モダン エディトリアル・デザイントークン
-  和紙クリーム背景 / 墨黒文字 / 藍アクセント / 榧（かや）の盤
+  棋稿 / Kikō — 和モダン・エディトリアル デザインシステム
+  和紙クリーム背景 / 墨黒文字 / 藍アクセント / 榧の盤 / 朱の成駒
 */
 :root {
-  --washi: #f6f1e7;        /* 和紙クリーム（背景）   */
-  --washi-2: #efe7d6;      /* 一段濃い和紙（面・カード）*/
-  --sumi: #1a1a1a;         /* 墨黒（文字）          */
-  --sumi-soft: #44403a;    /* やわらか墨（副文字）    */
-  --ai: #1f3a5f;           /* 藍（アクセント1点）     */
-  --ai-soft: #355074;      /* 明るい藍              */
-  --kaya: #e7c98f;         /* 榧の木目（盤）        */
-  --kaya-line: #b08a4f;    /* 盤の罫線            */
-  --line: #d8cdb6;         /* 仕切り線            */
-  --danger: #9b2c2c;       /* 朱（警告）           */
-  --ok: #3f6b46;           /* 緑（解決済み）        */
+  --washi: #f4efe3;        /* 和紙クリーム（背景）       */
+  --washi-2: #ece3d2;      /* 一段濃い和紙（面・カード）   */
+  --washi-3: #e3d8c2;      /* さらに濃い（境目・押下）    */
+  --sumi: #20201d;         /* 墨黒（文字）             */
+  --sumi-soft: #5b554c;    /* やわらか墨（副文字）       */
+  --sumi-faint: #8a8175;   /* 最も淡い墨               */
+  --ai: #1b3a5b;           /* 藍（アクセント1点）        */
+  --ai-soft: #34597f;      /* 明るい藍                */
+  --kaya: #e8c88c;         /* 榧の木目（盤）           */
+  --kaya-2: #dcb878;       /* 盤の陰                  */
+  --koma: #f3e0b3;         /* 駒木地（明るい黄楊）       */
+  --koma-2: #e6c98f;       /* 駒木地の陰              */
+  --koma-line: #9b7b46;    /* 盤の罫線                */
+  --line: #d8cdb6;         /* 仕切り線（和紙上）        */
+  --line-soft: #e3dac8;    /* さらに淡い仕切り         */
+  --shu: #b3382c;          /* 朱（成駒・警告の差し色）    */
+  --danger: #9b2c2c;
+  --ok: #3f6b46;
 }
 
 @theme inline {
   --color-washi: var(--washi);
   --color-washi-2: var(--washi-2);
+  --color-washi-3: var(--washi-3);
   --color-sumi: var(--sumi);
   --color-sumi-soft: var(--sumi-soft);
+  --color-sumi-faint: var(--sumi-faint);
   --color-ai: var(--ai);
   --color-ai-soft: var(--ai-soft);
   --color-kaya: var(--kaya);
-  --color-kaya-line: var(--kaya-line);
+  --color-koma: var(--koma);
   --color-line: var(--line);
+  --color-line-soft: var(--line-soft);
+  --color-shu: var(--shu);
   --color-danger: var(--danger);
   --color-ok: var(--ok);
   --font-sans: var(--font-noto-sans-jp);
   --font-serif: var(--font-noto-serif-jp);
 }
 
-html, body {
+html,
+body {
   height: 100%;
 }
 
 body {
-  background: var(--washi);
+  background-color: var(--washi);
+  /* ごく淡い和紙の地合い（テクスチャ） */
+  background-image:
+    radial-gradient(circle at 18% 12%, rgba(255, 255, 255, 0.5) 0%, transparent 38%),
+    radial-gradient(circle at 88% 8%, rgba(255, 255, 255, 0.35) 0%, transparent 30%),
+    radial-gradient(circle at 50% 100%, rgba(160, 140, 100, 0.06) 0%, transparent 55%);
+  background-attachment: fixed;
   color: var(--sumi);
   font-family: var(--font-noto-sans-jp), "Yu Gothic", "游ゴシック", system-ui, sans-serif;
+  font-feature-settings: "palt";
+  letter-spacing: 0.01em;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
-/* 見出しに品のある明朝を少しだけ効かせる */
-.font-mincho {
-  font-family: var(--font-noto-serif-jp), "Yu Mincho", "游明朝", serif;
+::selection {
+  background: rgba(27, 58, 91, 0.15);
 }
 
-/* 将棋の駒文字専用（漢字が綺麗に出るよう明朝） */
+/* 見出し用の明朝 */
+.font-mincho {
+  font-family: var(--font-noto-serif-jp), "Yu Mincho", "游明朝", serif;
+  letter-spacing: 0.04em;
+}
+
+/* 駒・解説中の漢字をきれいに出す */
 .koma {
   font-family: var(--font-noto-serif-jp), "Yu Mincho", "游明朝", serif;
   font-feature-settings: "palt";
 }
 
-/* スクロールバーを控えめに */
+/* スクロールバー */
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--line) transparent;
 }
+*::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 9px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
 
-/* 控えめなフェードイン（コメント出現など） */
+/* ============ 将棋の駒（五角形・本物志向） ============ */
+.koma-wrap {
+  filter: drop-shadow(0 1.5px 1px rgba(60, 40, 10, 0.32));
+  line-height: 1;
+}
+.koma-piece {
+  display: grid;
+  place-items: center;
+  width: 86%;
+  aspect-ratio: 43 / 47;
+  /* 駒の五角形シルエット（上が尖る） */
+  clip-path: polygon(50% 0%, 73% 15%, 88% 100%, 12% 100%, 27% 15%);
+  background: linear-gradient(157deg, var(--koma) 0%, var(--koma-2) 100%);
+}
+.koma-glyph {
+  font-family: var(--font-noto-serif-jp), "Yu Mincho", "游明朝", serif;
+  font-weight: 600;
+  color: var(--sumi);
+  line-height: 1;
+  transform: translateY(4%);
+}
+.koma-glyph.promoted {
+  color: var(--shu);
+}
+.koma-flip {
+  transform: rotate(180deg);
+}
+
+/* ============ 盤 ============ */
+.ban-frame {
+  background: linear-gradient(160deg, var(--kaya) 0%, var(--kaya-2) 100%);
+  border-radius: 6px;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.4) inset,
+    0 10px 30px -12px rgba(60, 40, 10, 0.45),
+    0 2px 6px -2px rgba(60, 40, 10, 0.3);
+}
+.ban-grid {
+  /* 細い墨の罫線。container の上・左 + 各セルの右・下で重複を防ぐ */
+  border-top: 1.5px solid var(--koma-line);
+  border-left: 1.5px solid var(--koma-line);
+}
+.ban-cell {
+  border-right: 1.5px solid var(--koma-line);
+  border-bottom: 1.5px solid var(--koma-line);
+}
+.ban-star {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--koma-line);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/* 控えめなフェードイン */
 @keyframes kikou-fade-in {
-  from { opacity: 0; transform: translateY(4px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 .animate-fade-in {
-  animation: kikou-fade-in 0.22s ease-out both;
+  animation: kikou-fade-in 0.26s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes kikou-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-rise {
+  animation: kikou-rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 /* 入力欄の基本トーン */
-input, textarea, select {
-  background: #fffdf8;
+input,
+textarea,
+select {
+  background: #fffdf7;
   border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--sumi);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--ai-soft);
+  box-shadow: 0 0 0 3px rgba(27, 58, 91, 0.12);
+}
+
+/* 解説の簡易マークダウン表示 */
+.prose-kikou h3 {
   color: var(--sumi);
 }
-input:focus, textarea:focus, select:focus {
-  outline: 2px solid var(--ai-soft);
-  outline-offset: 1px;
+.prose-kikou h4 {
+  color: var(--sumi);
+}
+.prose-kikou p + p {
+  margin-top: 0.5em;
 }
