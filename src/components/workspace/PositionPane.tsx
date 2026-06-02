@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { db } from "@/lib/db-client";
 import { Board } from "@/components/board/Board";
 import { BoardEditor } from "@/components/board/BoardEditor";
+import { KifuPanel } from "@/components/board/KifuPanel";
 import { Attachments } from "./Attachments";
 import { parseSfen, INITIAL_SFEN } from "@/lib/shogi/sfen";
 import { renderLite } from "@/lib/render-lite";
@@ -61,6 +62,15 @@ export function PositionPane({
     }, 600);
   }
 
+  // 取り込んだ棋譜（JKF）を保存（再開時の再生用）
+  async function saveKifuJkf(jkf: unknown) {
+    await supabase
+      .from("positions")
+      .update({ kifu_jkf: jkf })
+      .eq("id", position.id);
+    onPatch(position.id, { kifu_jkf: jkf });
+  }
+
   useEffect(() => {
     return () => {
       if (timer.current) clearTimeout(timer.current);
@@ -110,7 +120,14 @@ export function PositionPane({
 
       {/* 盤 */}
       {isAuthor ? (
-        <BoardEditor sfen={position.sfen} onChange={scheduleBoardSave} />
+        <>
+          <BoardEditor sfen={position.sfen} onChange={scheduleBoardSave} />
+          <KifuPanel
+            initialJkf={position.kifu_jkf}
+            onApply={scheduleBoardSave}
+            onSaveJkf={saveKifuJkf}
+          />
+        </>
       ) : (
         <Board state={safeState} />
       )}

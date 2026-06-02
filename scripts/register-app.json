@@ -1,0 +1,6 @@
+{
+  "url": "https://kikou-ecru.vercel.app",
+  "title": "棋稿（きこう）",
+  "description": "将棋の本を書く著者と編集者が、将棋の局面を中心にやり取りできる編集ツール。盤面を組み、解説を書き、その局面に直接コメント（スレッド・解決・未解決フィルタ）。盤面・解説・会話がいつも同じ局面にひもづく。スマホ／PC対応・ホーム追加可。",
+  "og_image_url": "https://kikou-ecru.vercel.app/icons/icon-512.png"
+}
