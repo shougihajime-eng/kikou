@@ -1,26 +1,84 @@
 @import "tailwindcss";
 
+/*
+  棋稿 / Kikō — 和モダン エディトリアル・デザイントークン
+  和紙クリーム背景 / 墨黒文字 / 藍アクセント / 榧（かや）の盤
+*/
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --washi: #f6f1e7;        /* 和紙クリーム（背景）   */
+  --washi-2: #efe7d6;      /* 一段濃い和紙（面・カード）*/
+  --sumi: #1a1a1a;         /* 墨黒（文字）          */
+  --sumi-soft: #44403a;    /* やわらか墨（副文字）    */
+  --ai: #1f3a5f;           /* 藍（アクセント1点）     */
+  --ai-soft: #355074;      /* 明るい藍              */
+  --kaya: #e7c98f;         /* 榧の木目（盤）        */
+  --kaya-line: #b08a4f;    /* 盤の罫線            */
+  --line: #d8cdb6;         /* 仕切り線            */
+  --danger: #9b2c2c;       /* 朱（警告）           */
+  --ok: #3f6b46;           /* 緑（解決済み）        */
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-washi: var(--washi);
+  --color-washi-2: var(--washi-2);
+  --color-sumi: var(--sumi);
+  --color-sumi-soft: var(--sumi-soft);
+  --color-ai: var(--ai);
+  --color-ai-soft: var(--ai-soft);
+  --color-kaya: var(--kaya);
+  --color-kaya-line: var(--kaya-line);
+  --color-line: var(--line);
+  --color-danger: var(--danger);
+  --color-ok: var(--ok);
+  --font-sans: var(--font-noto-sans-jp);
+  --font-serif: var(--font-noto-serif-jp);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html, body {
+  height: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--washi);
+  color: var(--sumi);
+  font-family: var(--font-noto-sans-jp), "Yu Gothic", "游ゴシック", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* 見出しに品のある明朝を少しだけ効かせる */
+.font-mincho {
+  font-family: var(--font-noto-serif-jp), "Yu Mincho", "游明朝", serif;
+}
+
+/* 将棋の駒文字専用（漢字が綺麗に出るよう明朝） */
+.koma {
+  font-family: var(--font-noto-serif-jp), "Yu Mincho", "游明朝", serif;
+  font-feature-settings: "palt";
+}
+
+/* スクロールバーを控えめに */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+
+/* 控えめなフェードイン（コメント出現など） */
+@keyframes kikou-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: kikou-fade-in 0.22s ease-out both;
+}
+
+/* 入力欄の基本トーン */
+input, textarea, select {
+  background: #fffdf8;
+  border: 1px solid var(--line);
+  color: var(--sumi);
+}
+input:focus, textarea:focus, select:focus {
+  outline: 2px solid var(--ai-soft);
+  outline-offset: 1px;
 }
